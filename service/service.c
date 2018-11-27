@@ -44,46 +44,43 @@ int main()
 	SOCKADDR_IN addrSrv;
 	SOCKADDR_IN addrClient;
 	SOCKET serv_sock;
-	
+
 	HANDLE cmd_thread;
 	HANDLE accept_thread;
 	DWORD dw,dw2;
 	int err;
 	int len;
-	
 
-	
-
-    version_reqs = MAKEWORD( 1, 1 );
+	version_reqs = MAKEWORD( 1, 1 );
 
 	//使用Socket的程序在使用Socket之前必须调用WSAStartup函数。以后应用程序就可以调用所请求的Socket库中的其它Socket函数了。
 	//应用程序在完成对请求的Socket库的使用后，要调用WSACleanup函数来解除与Socket库的绑定并且释放Socket库所占用的系统资源。
-    err = WSAStartup(version_reqs, &wsaData );
-    if (err != 0) 
+	err = WSAStartup(version_reqs, &wsaData );
+	if (err != 0) 
 	{
 		printf("we couldn't find a useable  winsock.dll");
-        return 0;
-    }
-	
-    if (LOBYTE( wsaData.wVersion ) != 1 || HIBYTE( wsaData.wVersion ) != 1) 
+	    return 0;
+	}
+
+	if (LOBYTE( wsaData.wVersion ) != 1 || HIBYTE( wsaData.wVersion ) != 1) 
 	{
-        WSACleanup( );
+	    WSACleanup( );
 		printf("we couldn't find a useable  winsock.dll");
-        return 0;
-    }
+	    return 0;
+	}
 	
-    serv_sock = socket(AF_INET,SOCK_STREAM,0);  //AF_INET是 IPv4 ,AF_INET6 是 IPv6 的;而 AF_UNIX 则是 Unix 系统本地通信
-	
-    addrSrv.sin_addr.S_un.S_addr=htonl(INADDR_ANY);
-	
-    addrSrv.sin_family=AF_INET;
-	
-    addrSrv.sin_port=htons(2120);
-	
+	serv_sock = socket(AF_INET,SOCK_STREAM,0);  //AF_INET是 IPv4 ,AF_INET6 是 IPv6 的;而 AF_UNIX 则是 Unix 系统本地通信
+
+	addrSrv.sin_addr.S_un.S_addr=htonl(INADDR_ANY);
+
+	addrSrv.sin_family=AF_INET;
+
+	addrSrv.sin_port=htons(2120);
+
 	bind(serv_sock,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));//bind socket fd & addr
-	
-    listen(serv_sock,5);
-	
+
+	listen(serv_sock,5);
+
 	len=sizeof(SOCKADDR);
 	stream_id=0;
 	new_sock_flag = 0;
@@ -98,7 +95,7 @@ int main()
 			cmd_thread = CreateThread(NULL,0,cmdThread,&new_sock,0,&dw);
 		}
 	}
-    WSACleanup();
+	WSACleanup();
 	return 1;
 }
 
@@ -137,13 +134,13 @@ DWORD WINAPI cmdThread(LPVOID lpParameter)
 	struct _finddata_t *fileinfo;
 	long find_handle;
 	char temp_path[100];
-	
+
 	memset(cmd_buf,0,105);
 	memset(cwd,0,100);
 	memset(temp_path,0,100);
 	cmd_sock=*((SOCKET *)lpParameter);
 	while(!new_sock_flag);
-	
+
 	cmd_sock=new_sock;
 	new_sock_flag=0;
 
@@ -251,12 +248,12 @@ DWORD WINAPI cmdThread(LPVOID lpParameter)
 		//暂停
 		else if(cmd_buf[0]=='s'&&cmd_buf[1]=='p')
 		{
-		
+
 		}
 		//开始
 		else if(cmd_buf[0]=='s'&&cmd_buf[1]=='r')
 		{
-		
+
 		}
 		//显示进度
 		else if(cmd_buf[0]=='s'&&cmd_buf[1]=='h')
@@ -267,8 +264,7 @@ DWORD WINAPI cmdThread(LPVOID lpParameter)
 }
 
 DWORD WINAPI downloadThread(LPVOID lpParameter)
-{
-	
+{	
 	char file_name[PATH_MAX];
 	uint32_t file_size=0;
 	uint32_t current_size=0;
@@ -278,17 +274,17 @@ DWORD WINAPI downloadThread(LPVOID lpParameter)
 	char data_buf[BUF_SIZE];
 	FILE *fp;
 
-    unsigned long n=0;
+	unsigned long n=0;
 
 	ctrl_handle *handle = (ctrl_handle*)lpParameter;
-	
+
 	WaitForSingleObject(handleMutex, INFINITE);
 	memcpy(file_name,handle->file_name,PATH_MAX);
 	file_size = handle->file_size;
 	mysock = handle->socket;
 	stream_id = handle->stream_id;
 	ReleaseMutex(handleMutex);
-	
+
 	memset(data_buf,0,BUF_SIZE);
 	fp = fopen(file_name,"wb");
 	if(fp==NULL)
@@ -296,10 +292,10 @@ DWORD WINAPI downloadThread(LPVOID lpParameter)
 		printf("open file failed!\n");
 		return -1;
 	}
-	
+
 	while(current_size<file_size)
 	{
-        n++;
+	    n++;
 		recv(mysock,data_buf,BUF_SIZE,0);
 		memcpy(&size,data_buf,4);
 		fwrite(data_buf+4,1,size,fp);
@@ -310,8 +306,8 @@ DWORD WINAPI downloadThread(LPVOID lpParameter)
 		ReleaseMutex(handleMutex);
 	}
 	fclose(fp);	
-    printf("trans over\n");
-	
+	printf("trans over\n");
+
 	return 0;
 }
 
@@ -326,8 +322,8 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 	uint32_t stream_id=-1;
 	char data_buf[BUF_SIZE];
 	FILE *fp;
-    unsigned long n=0;
-	
+	unsigned long n=0;
+
 	ctrl_handle *handle = (ctrl_handle*)lpParameter;
 
 	WaitForSingleObject(handleMutex, INFINITE);
@@ -336,7 +332,7 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 	mysock = handle->socket;
 	stream_id = handle->stream_id;
 	ReleaseMutex(handleMutex);
-	
+
 	memset(data_buf,0,BUF_SIZE);
 	fp = fopen(file_name,"rb");
 	if(fp==NULL)
@@ -347,7 +343,7 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 
 	while(!feof(fp))
 	{
-        n++;
+		n++;
 		size = fread(data_buf+4,1,BUF_SIZE-4,fp);
 		memcpy(data_buf,&size,4);
 		send(mysock,data_buf,BUF_SIZE,0);
@@ -355,13 +351,10 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 
 		WaitForSingleObject(handleMutex, INFINITE);
 		handle->current_size=current_size;
-		ReleaseMutex(handleMutex);	
-	
-
-		
+		ReleaseMutex(handleMutex);			
 	}
 	fclose(fp);
-    printf("trans over %d\n",handle->stream_id);
+	printf("trans over %d\n",handle->stream_id);
 
 	return 0;
 }

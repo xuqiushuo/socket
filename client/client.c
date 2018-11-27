@@ -32,7 +32,7 @@ DWORD WINAPI uploadThread(LPVOID lpParameter);
 
 int main()
 {
-    WORD version_reqs;
+	WORD version_reqs;
 	WSADATA wsaData;
 	SOCKADDR_IN addrSrv;
 	SOCKADDR_IN addrSrv2;
@@ -51,52 +51,52 @@ int main()
 	char path_temp[100];
 	char serIP[20];
 	uint64_t temp_size;
-	
+
 	uint32_t ctrl_id;
 
-    version_reqs = MAKEWORD( 1, 1 );
+	version_reqs = MAKEWORD( 1, 1 );
 
 	//Ê¹ÓÃSocketµÄ³ÌĞòÔÚÊ¹ÓÃSocketÖ®Ç°±ØĞëµ÷ÓÃWSAStartupº¯Êı¡£ÒÔºóÓ¦ÓÃ³ÌĞò¾Í¿ÉÒÔµ÷ÓÃËùÇëÇóµÄSocket¿âÖĞµÄÆäËüSocketº¯ÊıÁË¡£
 	//Ó¦ÓÃ³ÌĞòÔÚÍê³É¶ÔÇëÇóµÄSocket¿âµÄÊ¹ÓÃºó£¬Òªµ÷ÓÃWSACleanupº¯ÊıÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡
-    err = WSAStartup(version_reqs, &wsaData );
-    if ( err != 0 ) 
+	err = WSAStartup(version_reqs, &wsaData );
+	if ( err != 0 ) 
 	{
 		printf("we couldn't find a useable  winsock.dll");
-        return 0;
-    }
-   
-    if ( LOBYTE( wsaData.wVersion ) != 1 || HIBYTE( wsaData.wVersion ) != 1 ) 
+	    return 0;
+	}
+
+	if ( LOBYTE( wsaData.wVersion ) != 1 || HIBYTE( wsaData.wVersion ) != 1 ) 
 	{
-        WSACleanup( );
+	    WSACleanup( );
 		printf("we couldn't find a useable  winsock.dll");
-        return 0;
-    }
-	
+	    return 0;
+	}
+
 	handleMutex = CreateMutex(NULL,FALSE,NULL);
-	
+
 	cmd_sock = socket(AF_INET,SOCK_STREAM,0);  //AF_INETÊÇ IPv4 ,AF_INET6 ÊÇ IPv6 µÄ;¶ø AF_UNIX ÔòÊÇ Unix ÏµÍ³±¾µØÍ¨ĞÅ
 	memset(serIP,0,20);
 	printf("input server ip:");
 	scanf("%s",serIP);
-   
-    addrSrv.sin_addr.S_un.S_addr=inet_addr(serIP);
-    addrSrv.sin_family=AF_INET;
-    addrSrv.sin_port=htons(2120);
-	
+
+	addrSrv.sin_addr.S_un.S_addr=inet_addr(serIP);
+	addrSrv.sin_family=AF_INET;
+	addrSrv.sin_port=htons(2120);
+
 	addrSrv2.sin_addr.S_un.S_addr=inet_addr(serIP);
-    addrSrv2.sin_family=AF_INET;
-    addrSrv2.sin_port=htons(2125);
+	addrSrv2.sin_family=AF_INET;
+	addrSrv2.sin_port=htons(2125);
 
 	memset(cmd_buf,0,105);
 	memset(cmd,0,5);
 	memset(arg,0,100);
 	memset(path_temp,0,100);
 	memset(cwd,0,100);
-	
-    connect(cmd_sock,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));
+
+	connect(cmd_sock,(SOCKADDR*)&addrSrv,sizeof(SOCKADDR));
 	send(cmd_sock,"cmd_sock connect ok!",strlen("cmd_sock connect ok!")+1,0);
 	recv(cmd_sock,cmd_buf,100,0);
-    printf("%s\n",cmd_buf);
+	printf("%s\n",cmd_buf);
 
 	handleMutex = CreateMutex(NULL,FALSE,NULL);
 	pos = head_handle = (ctrl_handle*)malloc(sizeof(ctrl_handle));
@@ -310,11 +310,11 @@ DWORD WINAPI downloadThread(LPVOID lpParameter)
 	uint32_t stream_id=-1;
 	char data_buf[BUF_SIZE];
 	FILE *fp;
-	
+
 	unsigned long n=0;
-	
+
 	ctrl_handle *handle = (ctrl_handle*)lpParameter;
-	
+
 	WaitForSingleObject(handleMutex, INFINITE);
 	memcpy(file_name,handle->file_name,PATH_MAX);
 	file_size = handle->file_size;
@@ -336,7 +336,7 @@ DWORD WINAPI downloadThread(LPVOID lpParameter)
 		memcpy(&size,data_buf,4);
 		fwrite(data_buf+4,1,size,fp);
 		current_size +=size;
-		
+
 		WaitForSingleObject(handleMutex, INFINITE);
 		handle->current_size=current_size;
 		if(current_size==file_size)
@@ -362,18 +362,18 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 	uint32_t stream_id;
 	char data_buf[BUF_SIZE];
 	FILE *fp;
-	
+
 	unsigned long n=0;
-	
+
 	ctrl_handle *handle = (ctrl_handle*)lpParameter;
-	
+
 	WaitForSingleObject(handleMutex, INFINITE);
 	memcpy(file_name,handle->file_name,PATH_MAX);
 	file_size = handle->file_size;
 	mysock = handle->socket;
 	stream_id = handle->stream_id;
 	ReleaseMutex(handleMutex);
-	
+
 	memset(data_buf,0,BUF_SIZE);
 	fp = fopen(file_name,"rb");
 	if(fp==NULL)
@@ -396,8 +396,7 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 		{
 			handle->status='o';
 		}
-		ReleaseMutex(handleMutex);	
-				
+		ReleaseMutex(handleMutex);					
 	}
 	fclose(fp);	
 	printf("trans over %d\n",handle->stream_id);
