@@ -37,7 +37,6 @@ int main()
 	SOCKADDR_IN addrSrv;
 	SOCKADDR_IN addrSrv2;
 	SOCKET cmd_sock;
-//	SOCKET new_sock;
 	ctrl_handle *head_handle;
 	ctrl_handle *pos;
 	ctrl_handle *pos2;
@@ -56,7 +55,9 @@ int main()
 	uint32_t ctrl_id;
 
     version_reqs = MAKEWORD( 1, 1 );
-   
+
+	//Ê¹ÓÃSocketµÄ³ÌĞòÔÚÊ¹ÓÃSocketÖ®Ç°±ØĞëµ÷ÓÃWSAStartupº¯Êı¡£ÒÔºóÓ¦ÓÃ³ÌĞò¾Í¿ÉÒÔµ÷ÓÃËùÇëÇóµÄSocket¿âÖĞµÄÆäËüSocketº¯ÊıÁË¡£
+	//Ó¦ÓÃ³ÌĞòÔÚÍê³É¶ÔÇëÇóµÄSocket¿âµÄÊ¹ÓÃºó£¬Òªµ÷ÓÃWSACleanupº¯ÊıÀ´½â³ıÓëSocket¿âµÄ°ó¶¨²¢ÇÒÊÍ·ÅSocket¿âËùÕ¼ÓÃµÄÏµÍ³×ÊÔ´¡
     err = WSAStartup(version_reqs, &wsaData );
     if ( err != 0 ) 
 	{
@@ -73,8 +74,7 @@ int main()
 	
 	handleMutex = CreateMutex(NULL,FALSE,NULL);
 	
-	cmd_sock = socket(AF_INET,SOCK_STREAM,0);
-//	new_sock = socket(AF_INET,SOCK_STREAM,0);
+	cmd_sock = socket(AF_INET,SOCK_STREAM,0);  //AF_INETÊÇ IPv4 ,AF_INET6 ÊÇ IPv6 µÄ;¶ø AF_UNIX ÔòÊÇ Unix ÏµÍ³±¾µØÍ¨ĞÅ
 	memset(serIP,0,20);
 	printf("input server ip:");
 	scanf("%s",serIP);
@@ -212,9 +212,6 @@ int main()
 			memset(cmd_buf,0,105);
 			memset(arg,0,100);
 			memset(cmd,0,5);
-
-//			printf("%s\n",cmd_buf);
-//			send(cmd_sock,cmd_buf,100,0);
 		}
 		//ÔİÍ£
 		else if(cmd[0]=='s'&&cmd[1]=='p')
@@ -296,13 +293,10 @@ int main()
 	}
 
 	closesocket(cmd_sock);
-
-
     WSACleanup();
 	system("pause");
 	return 1;
 }
-
 
 
 DWORD WINAPI downloadThread(LPVOID lpParameter)
@@ -349,15 +343,10 @@ DWORD WINAPI downloadThread(LPVOID lpParameter)
 		{
 			handle->status='o';
 		}
-//printf("%8d:stream--%d ,current_size--%d\n",n,handle->stream_id,current_size);
-
 		ReleaseMutex(handleMutex);
-		
-
 	}
 	fclose(fp);
-//	printf("%8d:stream--%d ,current_size--%d\n",n,handle->stream_id,current_size);
-//	printf("trans over\n");
+	printf("trans over\n");
 	
 	return 0;
 }
@@ -407,18 +396,11 @@ DWORD WINAPI uploadThread(LPVOID lpParameter)
 		{
 			handle->status='o';
 		}
-
-//		printf("%8d----%d ,current_size--%d\n",n,handle->stream_id,current_size);
-
 		ReleaseMutex(handleMutex);	
-		
-
-		
+				
 	}
-	fclose(fp);
-	
-	
-	//printf("trans over %d\n",handle->stream_id);
+	fclose(fp);	
+	printf("trans over %d\n",handle->stream_id);
 	
 	return 0;
 }
