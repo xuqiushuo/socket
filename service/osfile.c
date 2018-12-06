@@ -6,7 +6,6 @@
 #include <direct.h>
 #include "stdafx.h"
 
-
 char * find_name_from_path(char *path)
 {
 	char *pos;
@@ -34,12 +33,10 @@ uint32_t get_file_size(char *path)
 
 	if (stat(path, &buf) < 0)
 	{
-        printf("Mesg: %s\n", strerror(errno));
-        exit(-1);
+	printf("Mesg: %s\n", strerror(errno));
+	exit(-1);
 	}
 	return buf.st_size;
-
-
 }
 
 char * filename_to_path(char * filename,char * cwd)
