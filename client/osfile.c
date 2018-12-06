@@ -6,7 +6,6 @@
 #include <direct.h>
 #include "stdafx.h"
 
-
 char * find_name_from_path(char *path)
 {
 	char *pos;
