@@ -1,2 +1,2 @@
-C实现socket通信
+C实现socket通信  
 其实项目中用到socket的时候很简单，app就是实际项目中使用socket建立通信，获取接口ip地址
