@@ -1,5 +1,6 @@
 /**
   *需要的头文件
+  *
   *直接调用lanGetNetIpAddr函数，传入接口名（如eth0）等参数
   */
 #include <arpa/inet.h>
@@ -30,7 +31,7 @@ static int lanGetNetIpAddr(const char *ifName, char *ipAddr, UINT32 addrLen)
     {
         return -1;
     }
-    UTIL_STRNCPY(ipAddr, inet_ntoa(sin->sin_addr), addrLen);
+    strncpy(ipAddr, inet_ntoa(sin->sin_addr), addrLen);
 
     return ret;
 }
